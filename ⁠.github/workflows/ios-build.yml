@@ -1,7 +1,13 @@
 name: Build Horizon iOS
 
 on:
-  workflow_dispatch: # Permite activar la compilación manualmente desde GitHub
+  workflow_dispatch:
+    inputs:
+      debug_enabled:
+        type: boolean
+        description: 'Run with tmate debugging enabled'
+        required: false
+        default: false
   push:
     branches:
       - main
@@ -18,7 +24,7 @@ jobs:
       - name: Install Rust Toolchain
         uses: dtolnay/rust-toolchain@stable
         with:
-          targets: aarch64-apple-ios, aarch64-apple-ios-sim
+          targets: aarch64-apple-ios
 
       - name: Rust Cache
         uses: Swatinem/rust-cache@v2
@@ -31,7 +37,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: horizon-ios-binaries
-          path: |
-            target/aarch64-apple-ios/release/*.a
-            target/aarch64-apple-ios/release/deps/
- 
+          path: target/aarch64-apple-ios/release/
