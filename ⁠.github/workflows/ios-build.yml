@@ -1,0 +1,36 @@
+name: Build Horizon iOS
+
+on:
+  workflow_dispatch: # Permite activar la compilación manualmente desde GitHub
+  push:
+    branches:
+      - main
+
+jobs:
+  build-ios:
+    name: Build iOS Native Libraries
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Rust Toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-apple-ios, aarch64-apple-ios-sim
+
+      - name: Rust Cache
+        uses: Swatinem/rust-cache@v2
+
+      - name: Build horizon-client for iOS (ARM64)
+        run: |
+          cargo build --package horizon-client-lib --target aarch64-apple-ios --release
+
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: horizon-ios-binaries
+          path: |
+            target/aarch64-apple-ios/release/*.a
+            target/aarch64-apple-ios/release/deps/
