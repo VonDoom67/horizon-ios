@@ -1,0 +1,33 @@
+name: Build Horizon iOS
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-ios:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-apple-ios
+
+      - name: Build Library
+        run: cargo build --package horizon-client-lib --target aarch64-apple-ios --release
+
+      - name: Verify Compiled File
+        run: ls -la target/aarch64-apple-ios/release/
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: horizon-ios-binaries
+          path: |
+            target/aarch64-apple-ios/release/*.a
+            target/aarch64-apple-ios/release/*.rlib
+            target/aarch64-apple-ios/release/libhorizon_client_lib*
